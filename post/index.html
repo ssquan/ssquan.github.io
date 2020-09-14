@@ -26,19 +26,19 @@
 
     
     
-      <link href="/index.xml" rel="alternate" type="application/rss+xml" title="Keep active thinking" />
-      <link href="/index.xml" rel="feed" type="application/rss+xml" title="Keep active thinking" />
+      <link href="/post/index.xml" rel="alternate" type="application/rss+xml" title="Keep active thinking" />
+      <link href="/post/index.xml" rel="feed" type="application/rss+xml" title="Keep active thinking" />
       
     
     
-    <meta property="og:title" content="Keep active thinking" />
+    <meta property="og:title" content="Posts" />
 <meta property="og:description" content="The last theme you&#39;ll ever need. Maybe." />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://ssquan.github.io/" />
+<meta property="og:url" content="https://ssquan.github.io/post/" />
 <meta property="og:updated_time" content="2020-08-13T20:10:15+08:00" />
-<meta itemprop="name" content="Keep active thinking">
+<meta itemprop="name" content="Posts">
 <meta itemprop="description" content="The last theme you&#39;ll ever need. Maybe."><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Keep active thinking"/>
+<meta name="twitter:title" content="Posts"/>
 <meta name="twitter:description" content="The last theme you&#39;ll ever need. Maybe."/>
 
 	
@@ -95,7 +95,7 @@
 
       <div class="tc-l pv4 pv6-l ph3 ph4-ns">
         <h1 class="f2 f-subheadline-l fw2 white-90 mb0 lh-title">
-          Keep active thinking
+          Posts
         </h1>
         
       </div>
@@ -105,46 +105,28 @@
 
     <main class="pb7" role="main">
       
-  <article class="cf ph3 ph5-l pv3 pv4-l f4 tc-l center measure-wide lh-copy mid-gray">
-    
-  </article>
-  
-  
-  
-  
-  
-  
-  
-    
-    
 
-    <div class="pa3 pa4-ns w-100 w-70-ns center">
+  <article class="pa3 pa4-ns nested-copy-line-height nested-img">
+    <section class="cf ph3 ph5-l pv3 pv4-l f4 tc-l center measure-wide lh-copy mid-gray">
       
-       
-          <h1 class="flex-none">
-            Recent Posts
-          </h1>
-        
-
+    </section>
+    <aside class="flex-ns flex-wrap justify-around mt5">
       
-
-      <section class="w-100 mw8">
-        
-        
-          <div class="relative w-100 mb4">
-            
-<article class="bb b--black-10">
-  <div class="db pv4 ph3 ph0-l no-underline dark-gray">
-    <div class="flex flex-column flex-row-ns">
-      
-      <div class="blah w-100">
-        <h1 class="f3 fw1 athelas mt0 lh-title">
-          <a href="https://ssquan.github.io/post/data-governace/" class="color-inherit dim link">
-            Data Governace
-            </a>
-        </h1>
-        <div class="f6 f5-l lh-copy nested-copy-line-height nested-links">
-          数据治理的建设难点 Meta data 元数据是数据资产的基石，元数据的几层认知：
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        August 13, 2020
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ssquan.github.io/post/data-governace/" class="link black dim">
+        Data Governace
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      数据治理的建设难点 Meta data 元数据是数据资产的基石，元数据的几层认知：
  Data Catalog Data Lineage  典型的开源系统：Apache Atlas，依赖的核心技术是 存储关系的图数据库 和 支持数据检索的数据库，例如 Hbase
 数据安全 数据安全问题涉及到认证、鉴权、脱敏（Data Mask）等问题。常见的实施位置：
  查询层，是在查询层进行屏蔽，其灵活性比在存储层屏蔽高。 存储层，如果是特别敏感，任何用户，甚至数据开发不可见的信息可以在存储成就进行脱敏；  脱敏的难点：
@@ -154,22 +136,16 @@ Data Asset 数据知产的关键核心在于能体现数据的价值，数据成
 Apache Ranger 作为数据安全领域的开源组件，提供基于 &ldquo;Resource-User-Operation&rdquo; 三者的权限定义模式，加上权限 ACL 的方式实现权限控制。特点：
  ACL 采用黑白名单结合的方式进行定义，可以灵活选择是白名单优先还是黑名单优先； 基于 Resource 资源的鉴权可以同步到 Resource 侧进行 Cache，单 Resource 只需要关注自己资源对应的权限，是一种Cache 策略，也会带来Cache 策略的缓存同步问题； Audit 审计功能，提供了类似 Solr，Hdfs 等方式，其主要的模式就是将日志写入到分布式存储 or 本地文件，不会回送给Admit； 根据用户查询权限的方式会有查询性能不高，内部用户场景应该是已经基本适用了。 支持数据脱敏  思考；
  相比于 Sql Gateway 的单输入点控制模式，其架构复杂，但是可以从原理侧防止开发人员直接访问引擎，数据是否对开发可见是鉴权设计需要考虑的点； 公有云的 AK 模式鉴权，似乎是完全基于 DB 的认证服务模式，会有性能瓶颈么？  Apache Atlas 数据血缘的重要组件，以插件化图数据库和元数据库的TiTan为核心，提供的核心功能：
-        </div>
-          <a href="https://ssquan.github.io/post/data-governace/" class="ba b--moon-gray bg-light-gray br2 color-inherit dib f7 hover-bg-moon-gray link mt2 ph2 pv1">read more</a>
-        
-      </div>
     </div>
   </div>
-</article>
 
-          </div>
-        
-      </section>
-
+        </div>
       
+    </aside>
+    
 
-      </div>
-  
+
+  </article>
 
     </main>
     <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">

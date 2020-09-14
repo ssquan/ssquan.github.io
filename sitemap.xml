@@ -3,11 +3,22 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://ssquan.github.io/categories/</loc>
+    <loc>https://ssquan.github.io/post/data-governace/</loc>
+    <lastmod>2020-08-13T20:10:15+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://ssquan.github.io/</loc>
+    <lastmod>2020-08-13T20:10:15+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ssquan.github.io/post/</loc>
+    <lastmod>2020-08-13T20:10:15+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ssquan.github.io/categories/</loc>
   </url>
   
   <url>
