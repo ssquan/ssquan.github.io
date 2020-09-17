@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Presto Insert Mysql | Keep active thinking</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="generator" content="Hugo 0.73.0" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.4fc0b62e4b82c997bb0041217cd6b979.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Presto Insert Mysql" />
+<meta property="og:description" content="故事是这样开始的 一个咖啡劲儿已经消退了的午后，业务大大突然抛了一个非常令人吃惊的问题，说: Presto insert Mysql 特别慢，跑了几十分钟了，一直 13% 左右， 你赶紧帮忙看看。第一反应就是 嗯？大问题了？，有一点兴奋，也有一点冒汗。
+一顿操作猛如虎 紧接着，大概进行了如下几个猛如虎的操作：
+ Presto 监控看起来，嗯～有一个 Stage 很慢，但是又没有死，大概几十 K Row/s 的速度在蠕动； Mysql 监控看起来，哦？CPU 低很，内存不大，磁盘占用率和 IO 都不高，网络更别说，不忙； Presto 进程在搞啥这么慢？Jstack 一下，stack 就是在 write 的地方； Mysql 的信息稍微捞一捞。  果然不出所料，没那么 easy 就看到原因，再来一杯咖啡提提神吧。
+来自大自然的猜想 在经过上面的操作之后，基本确定的是两个系统都没有发生什么异常，他们在正常的工作，只是慢。正常操作，资源不紧张，看起来不是瓶颈，深度怀疑是有竞争了。难道是有锁竞争？Show Create Table 还是有一点小小的惊喜，内容是这样的（ 已脱敏）：
+| mock_id_cross_index | CREATE TABLE `mock_id_cross_index` ( `id` bigint(20) DEFAULT NULL, `c1` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL , `c2` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL, `c3` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL, `c4` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL, `c5` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL, `c6` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL, `c7` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL, `c8` bigint(20) DEFAULT NULL, PRIMARY KEY (`c1`), KEY `AK_c1` (`c2`) USING BTREE, KEY `AK_c2` (`c3`) USING BTREE, KEY `AK_c3` (`c4`) USING BTREE, KEY `AK_c4` (`c5`) USING BTREE, KEY `AK_c5` (`c6`) USING BTREE 先卖个关子，不说明这里主要的坑。但是满眼的索引有点害怕了。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ssquan.github.io/post/presto-insert-mysql/" />
+<meta property="article:published_time" content="2020-09-16T20:15:20+08:00" />
+<meta property="article:modified_time" content="2020-09-16T20:15:20+08:00" />
+<meta itemprop="name" content="Presto Insert Mysql">
+<meta itemprop="description" content="故事是这样开始的 一个咖啡劲儿已经消退了的午后，业务大大突然抛了一个非常令人吃惊的问题，说: Presto insert Mysql 特别慢，跑了几十分钟了，一直 13% 左右， 你赶紧帮忙看看。第一反应就是 嗯？大问题了？，有一点兴奋，也有一点冒汗。
+一顿操作猛如虎 紧接着，大概进行了如下几个猛如虎的操作：
+ Presto 监控看起来，嗯～有一个 Stage 很慢，但是又没有死，大概几十 K Row/s 的速度在蠕动； Mysql 监控看起来，哦？CPU 低很，内存不大，磁盘占用率和 IO 都不高，网络更别说，不忙； Presto 进程在搞啥这么慢？Jstack 一下，stack 就是在 write 的地方； Mysql 的信息稍微捞一捞。  果然不出所料，没那么 easy 就看到原因，再来一杯咖啡提提神吧。
+来自大自然的猜想 在经过上面的操作之后，基本确定的是两个系统都没有发生什么异常，他们在正常的工作，只是慢。正常操作，资源不紧张，看起来不是瓶颈，深度怀疑是有竞争了。难道是有锁竞争？Show Create Table 还是有一点小小的惊喜，内容是这样的（ 已脱敏）：
+| mock_id_cross_index | CREATE TABLE `mock_id_cross_index` ( `id` bigint(20) DEFAULT NULL, `c1` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL , `c2` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL, `c3` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL, `c4` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL, `c5` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL, `c6` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL, `c7` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL, `c8` bigint(20) DEFAULT NULL, PRIMARY KEY (`c1`), KEY `AK_c1` (`c2`) USING BTREE, KEY `AK_c2` (`c3`) USING BTREE, KEY `AK_c3` (`c4`) USING BTREE, KEY `AK_c4` (`c5`) USING BTREE, KEY `AK_c5` (`c6`) USING BTREE 先卖个关子，不说明这里主要的坑。但是满眼的索引有点害怕了。">
+<meta itemprop="datePublished" content="2020-09-16T20:15:20&#43;08:00" />
+<meta itemprop="dateModified" content="2020-09-16T20:15:20&#43;08:00" />
+<meta itemprop="wordCount" content="331">
+
+
+
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Presto Insert Mysql"/>
+<meta name="twitter:description" content="故事是这样开始的 一个咖啡劲儿已经消退了的午后，业务大大突然抛了一个非常令人吃惊的问题，说: Presto insert Mysql 特别慢，跑了几十分钟了，一直 13% 左右， 你赶紧帮忙看看。第一反应就是 嗯？大问题了？，有一点兴奋，也有一点冒汗。
+一顿操作猛如虎 紧接着，大概进行了如下几个猛如虎的操作：
+ Presto 监控看起来，嗯～有一个 Stage 很慢，但是又没有死，大概几十 K Row/s 的速度在蠕动； Mysql 监控看起来，哦？CPU 低很，内存不大，磁盘占用率和 IO 都不高，网络更别说，不忙； Presto 进程在搞啥这么慢？Jstack 一下，stack 就是在 write 的地方； Mysql 的信息稍微捞一捞。  果然不出所料，没那么 easy 就看到原因，再来一杯咖啡提提神吧。
+来自大自然的猜想 在经过上面的操作之后，基本确定的是两个系统都没有发生什么异常，他们在正常的工作，只是慢。正常操作，资源不紧张，看起来不是瓶颈，深度怀疑是有竞争了。难道是有锁竞争？Show Create Table 还是有一点小小的惊喜，内容是这样的（ 已脱敏）：
+| mock_id_cross_index | CREATE TABLE `mock_id_cross_index` ( `id` bigint(20) DEFAULT NULL, `c1` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL , `c2` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL, `c3` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL, `c4` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL, `c5` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL, `c6` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL, `c7` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL, `c8` bigint(20) DEFAULT NULL, PRIMARY KEY (`c1`), KEY `AK_c1` (`c2`) USING BTREE, KEY `AK_c2` (`c3`) USING BTREE, KEY `AK_c3` (`c4`) USING BTREE, KEY `AK_c4` (`c5`) USING BTREE, KEY `AK_c5` (`c6`) USING BTREE 先卖个关子，不说明这里主要的坑。但是满眼的索引有点害怕了。"/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Keep active thinking
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+        <ul class="pl0 mr3">
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="/post/" title="Home page">
+              Home
+            </a>
+          </li>
+          
+        </ul>
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw8 center ph3">
+    <header class="mt4 w-100">
+      <aside class="instapaper_ignoref b helvetica tracked">
+          
+        POSTS
+      </aside>
+      
+
+
+
+
+  <div id="sharing" class="mt3">
+
+    
+    <a href="https://www.facebook.com/sharer.php?u=https://ssquan.github.io/post/presto-insert-mysql/" class="facebook no-underline" aria-label="share on Facebook">
+      <svg height="32px"  style="enable-background:new 0 0 67 67;" version="1.1" viewBox="0 0 67 67" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M28.765,50.32h6.744V33.998h4.499l0.596-5.624h-5.095  l0.007-2.816c0-1.466,0.14-2.253,2.244-2.253h2.812V17.68h-4.5c-5.405,0-7.307,2.729-7.307,7.317v3.377h-3.369v5.625h3.369V50.32z   M33,64C16.432,64,3,50.569,3,34S16.432,4,33,4s30,13.431,30,30S49.568,64,33,64z" style="fill-rule:evenodd;clip-rule:evenodd;"/></svg>
+
+    </a>
+
+    
+    
+    <a href="https://twitter.com/share?url=https://ssquan.github.io/post/presto-insert-mysql/&amp;text=Presto%20Insert%20Mysql" class="twitter no-underline" aria-label="share on Twitter">
+      <svg height="32px"  style="enable-background:new 0 0 67 67;" version="1.1" viewBox="0 0 67 67" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M37.167,22.283c-2.619,0.953-4.274,3.411-4.086,6.101  l0.063,1.038l-1.048-0.127c-3.813-0.487-7.145-2.139-9.974-4.915l-1.383-1.377l-0.356,1.017c-0.754,2.267-0.272,4.661,1.299,6.271  c0.838,0.89,0.649,1.017-0.796,0.487c-0.503-0.169-0.943-0.296-0.985-0.233c-0.146,0.149,0.356,2.076,0.754,2.839  c0.545,1.06,1.655,2.097,2.871,2.712l1.027,0.487l-1.215,0.021c-1.173,0-1.215,0.021-1.089,0.467  c0.419,1.377,2.074,2.839,3.918,3.475l1.299,0.444l-1.131,0.678c-1.676,0.976-3.646,1.526-5.616,1.568  C19.775,43.256,19,43.341,19,43.405c0,0.211,2.557,1.397,4.044,1.864c4.463,1.377,9.765,0.783,13.746-1.568  c2.829-1.673,5.657-5,6.978-8.221c0.713-1.716,1.425-4.851,1.425-6.354c0-0.975,0.063-1.102,1.236-2.267  c0.692-0.678,1.341-1.419,1.467-1.631c0.21-0.403,0.188-0.403-0.88-0.043c-1.781,0.636-2.033,0.551-1.152-0.402  c0.649-0.678,1.425-1.907,1.425-2.267c0-0.063-0.314,0.042-0.671,0.233c-0.377,0.212-1.215,0.53-1.844,0.72l-1.131,0.361l-1.027-0.7  c-0.566-0.381-1.361-0.805-1.781-0.932C39.766,21.902,38.131,21.944,37.167,22.283z M33,64C16.432,64,3,50.569,3,34S16.432,4,33,4  s30,13.431,30,30S49.568,64,33,64z" style="fill-rule:evenodd;clip-rule:evenodd;fill:;"/></svg>
+
+    </a>
+
+    
+    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https://ssquan.github.io/post/presto-insert-mysql/&amp;title=Presto%20Insert%20Mysql" class="linkedin no-underline" aria-label="share on LinkedIn">
+      <svg  height="32px"  style="enable-background:new 0 0 65 65;" version="1.1" viewBox="0 0 65 65" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <path d="M50.837,48.137V36.425c0-6.275-3.35-9.195-7.816-9.195  c-3.604,0-5.219,1.983-6.119,3.374V27.71h-6.79c0.09,1.917,0,20.427,0,20.427h6.79V36.729c0-0.609,0.044-1.219,0.224-1.655  c0.49-1.22,1.607-2.483,3.482-2.483c2.458,0,3.44,1.873,3.44,4.618v10.929H50.837z M22.959,24.922c2.367,0,3.842-1.57,3.842-3.531  c-0.044-2.003-1.475-3.528-3.797-3.528s-3.841,1.524-3.841,3.528c0,1.961,1.474,3.531,3.753,3.531H22.959z M34,64  C17.432,64,4,50.568,4,34C4,17.431,17.432,4,34,4s30,13.431,30,30C64,50.568,50.568,64,34,64z M26.354,48.137V27.71h-6.789v20.427  H26.354z" style="fill-rule:evenodd;clip-rule:evenodd;fill:;"/>
+</svg>
+
+    </a>
+  </div>
+
+
+      <h1 class="f1 athelas mt3 mb1">Presto Insert Mysql</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2020-09-16T20:15:20+08:00">September 16, 2020</time>
+
+      
+      
+    </header>
+    <div class="nested-copy-line-height lh-copy serif f4 nested-links nested-img mid-gray pr4-l w-two-thirds-l"><h2 id="故事是这样开始的">故事是这样开始的</h2>
+<p>一个咖啡劲儿已经消退了的午后，业务大大突然抛了一个非常令人吃惊的问题，说: <strong>Presto insert Mysql 特别慢，跑了几十分钟了，一直 13% 左右， 你赶紧帮忙看看</strong>。第一反应就是 <code>嗯？大问题了？</code>，有一点兴奋，也有一点冒汗。</p>
+<h2 id="一顿操作猛如虎">一顿操作猛如虎</h2>
+<p>紧接着，大概进行了如下几个猛如虎的操作：</p>
+<ol>
+<li>Presto 监控看起来，嗯～有一个 Stage 很慢，但是又没有死，大概几十 K Row/s 的速度在蠕动；</li>
+<li>Mysql 监控看起来，哦？CPU 低很，内存不大，磁盘占用率和 IO 都不高，网络更别说，不忙；</li>
+<li>Presto 进程在搞啥这么慢？Jstack 一下，stack 就是在 write 的地方；</li>
+<li>Mysql 的信息稍微捞一捞。</li>
+</ol>
+<p>果然不出所料，没那么 easy 就看到原因，再来一杯咖啡提提神吧。</p>
+<h2 id="来自大自然的猜想">来自大自然的猜想</h2>
+<p>在经过上面的操作之后，基本确定的是两个系统都没有发生什么异常，他们在<strong>正常</strong>的工作，只是慢。正常操作，资源不紧张，看起来不是瓶颈，深度怀疑是有竞争了。难道是有锁竞争？<code>Show Create Table</code> 还是有一点小小的惊喜，内容是这样的（ 已脱敏）：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#f92672">|</span> mock_id_cross_index <span style="color:#f92672">|</span> <span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">TABLE</span> <span style="color:#f92672">`</span>mock_id_cross_index<span style="color:#f92672">`</span> (
+  <span style="color:#f92672">`</span>id<span style="color:#f92672">`</span> bigint(<span style="color:#ae81ff">20</span>) <span style="color:#66d9ef">DEFAULT</span> <span style="color:#66d9ef">NULL</span>,
+  <span style="color:#f92672">`</span>c1<span style="color:#f92672">`</span> varchar(<span style="color:#ae81ff">255</span>) CHARACTER <span style="color:#66d9ef">SET</span> utf8mb4 <span style="color:#66d9ef">COLLATE</span> utf8mb4_unicode_ci <span style="color:#66d9ef">NOT</span> <span style="color:#66d9ef">NULL</span> ,
+  <span style="color:#f92672">`</span>c2<span style="color:#f92672">`</span> varchar(<span style="color:#ae81ff">255</span>) CHARACTER <span style="color:#66d9ef">SET</span> utf8mb4 <span style="color:#66d9ef">COLLATE</span> utf8mb4_unicode_ci <span style="color:#66d9ef">DEFAULT</span> <span style="color:#66d9ef">NULL</span>,
+  <span style="color:#f92672">`</span>c3<span style="color:#f92672">`</span> varchar(<span style="color:#ae81ff">255</span>) CHARACTER <span style="color:#66d9ef">SET</span> utf8mb4 <span style="color:#66d9ef">COLLATE</span> utf8mb4_unicode_ci <span style="color:#66d9ef">NOT</span> <span style="color:#66d9ef">NULL</span>,
+  <span style="color:#f92672">`</span>c4<span style="color:#f92672">`</span> varchar(<span style="color:#ae81ff">255</span>) CHARACTER <span style="color:#66d9ef">SET</span> utf8mb4 <span style="color:#66d9ef">COLLATE</span> utf8mb4_unicode_ci <span style="color:#66d9ef">DEFAULT</span> <span style="color:#66d9ef">NULL</span>,
+  <span style="color:#f92672">`</span>c5<span style="color:#f92672">`</span> varchar(<span style="color:#ae81ff">255</span>) CHARACTER <span style="color:#66d9ef">SET</span> utf8mb4 <span style="color:#66d9ef">COLLATE</span> utf8mb4_unicode_ci <span style="color:#66d9ef">DEFAULT</span> <span style="color:#66d9ef">NULL</span>,
+  <span style="color:#f92672">`</span>c6<span style="color:#f92672">`</span> varchar(<span style="color:#ae81ff">255</span>) CHARACTER <span style="color:#66d9ef">SET</span> utf8mb4 <span style="color:#66d9ef">COLLATE</span> utf8mb4_unicode_ci <span style="color:#66d9ef">DEFAULT</span> <span style="color:#66d9ef">NULL</span>,
+  <span style="color:#f92672">`</span>c7<span style="color:#f92672">`</span> varchar(<span style="color:#ae81ff">255</span>) CHARACTER <span style="color:#66d9ef">SET</span> utf8mb4 <span style="color:#66d9ef">COLLATE</span> utf8mb4_unicode_ci <span style="color:#66d9ef">DEFAULT</span> <span style="color:#66d9ef">NULL</span>,
+  <span style="color:#f92672">`</span>c8<span style="color:#f92672">`</span> bigint(<span style="color:#ae81ff">20</span>) <span style="color:#66d9ef">DEFAULT</span> <span style="color:#66d9ef">NULL</span>,
+  <span style="color:#66d9ef">PRIMARY</span> <span style="color:#66d9ef">KEY</span> (<span style="color:#f92672">`</span>c1<span style="color:#f92672">`</span>),
+  <span style="color:#66d9ef">KEY</span> <span style="color:#f92672">`</span>AK_c1<span style="color:#f92672">`</span> (<span style="color:#f92672">`</span>c2<span style="color:#f92672">`</span>) <span style="color:#66d9ef">USING</span> BTREE,
+  <span style="color:#66d9ef">KEY</span> <span style="color:#f92672">`</span>AK_c2<span style="color:#f92672">`</span> (<span style="color:#f92672">`</span>c3<span style="color:#f92672">`</span>) <span style="color:#66d9ef">USING</span> BTREE,
+  <span style="color:#66d9ef">KEY</span> <span style="color:#f92672">`</span>AK_c3<span style="color:#f92672">`</span> (<span style="color:#f92672">`</span>c4<span style="color:#f92672">`</span>) <span style="color:#66d9ef">USING</span> BTREE,
+  <span style="color:#66d9ef">KEY</span> <span style="color:#f92672">`</span>AK_c4<span style="color:#f92672">`</span> (<span style="color:#f92672">`</span>c5<span style="color:#f92672">`</span>) <span style="color:#66d9ef">USING</span> BTREE,
+  <span style="color:#66d9ef">KEY</span> <span style="color:#f92672">`</span>AK_c5<span style="color:#f92672">`</span> (<span style="color:#f92672">`</span>c6<span style="color:#f92672">`</span>) <span style="color:#66d9ef">USING</span> BTREE
+</code></pre></div><p>先卖个关子，不说明这里主要的坑。但是满眼的索引有点害怕了。</p>
+<h2 id="innodb-的状态">InnoDB 的状态</h2>
+<p>有个比较奇怪的点，其实并没有看到<code>锁竞争</code>，因为我们的数据是预先去重的，所以并不会竞争 <code>Insert Lock</code>。这里稍微贴一下 InnoDB 的信息（已裁减无用信息 &amp; 脱敏）：</p>
+<pre><code>------------
+TRANSACTIONS
+------------
+---TRANSACTION 2820204, ACTIVE 0 sec
+1 lock struct(s), heap size 1136, 0 row lock(s), undo log entries 327
+MySQL thread id 99133, OS thread handle 139965631731456, query id 107575094 100.64.22.0 root starting
+INSERT INTO `studydb`.`tmp_presto_509cb3802fc84d6697019cad2c55c982` (`c1`, `c2`, `c3`) VALUES ('37008735_xxxx','717460_R0073xxx','717xxx')
+---TRANSACTION 2820201, ACTIVE 0 sec
+1 lock struct(s), heap size 1136, 0 row lock(s), undo log entries 457
+MySQL thread id 99138, OS thread handle 139965657954048, query id 107575093 100.64.22.0 root init
+INSERT INTO `studydb`.`tmp_presto_509cb3802fc84d6697019cad2c55c982` (`c1`, `c2`, `c3`) VALUES ('35922969_xxx_xxx','21918025_Q1829xxx','21918xxx')
+---TRANSACTION 2820200, ACTIVE 0 sec inserting
+</code></pre><p>这个时候其实是迷茫的，笨办法是对比，于是<strong>对比了有索引和没有索引下的 innodb 的状态</strong>。</p>
+<p><img src="/static/innodb-status-compare.png" alt="image-20200917112522991"></p>
+<h2 id="动手试验">动手试验</h2>
+<h2 id="presto-insert-mysql-的流程">Presto Insert Mysql 的流程</h2>
+<p>Presto 通过先将数据写入临时表的方式达到了 atom 的效果，具体流程如下：</p>
+<pre><code class="language-mermaid" data-lang="mermaid">sequenceDiagram
+    participant presto_coordinator
+    participant presto_worker
+    participant Mysql
+    
+    presto_coordinator -&gt;&gt; Mysql: 1. Create temporary table
+    presto_coordinator -&gt;&gt; presto_worker: 2. Write temp table
+    presto_worker -&gt;&gt; Mysql: 3. Insert into temp table
+    presto_coordinator -&gt;&gt; Mysql: 4.Insert into as select from temporary table
+    presto_coordinator -&gt;&gt; Mysql: 5. Delete temporary table
+    
+</code></pre><p>步骤文字说明：</p>
+<ol>
+<li>在 Presto Coordinator 解析作业时如果发现是 Insert 操作，则创建一个临时表；</li>
+<li>Presto Worker 上开始运行作业，读取数据，写入数据；</li>
+<li>Presto Coordinator 在数据写完后，执行 SQL 将数据从临时表拷贝到目标表；</li>
+<li>Presto Coordinator 删除临时表；</li>
+</ol>
+<p>临时表的做法带来了原子性，也伴随着两个问题：</p>
+<ol>
+<li>写放大，整个过程，Mysql 需要至少 2 倍于数据量的空间；</li>
+<li>临时表有些情况会被残留，必现的场景是执行操作过程中 Mysql 发生重启；</li>
+</ol>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+      
+      </div>
+    </div>
+
+    <aside class="w-30-l mt6-l">
+
+
+
+
+</aside>
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ssquan.github.io/" >
+    &copy;  Keep active thinking 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

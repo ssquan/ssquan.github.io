@@ -6,10 +6,23 @@
     <description>Recent content on Keep active thinking</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Thu, 13 Aug 2020 20:10:15 +0800</lastBuildDate>
+    <lastBuildDate>Wed, 16 Sep 2020 20:15:20 +0800</lastBuildDate>
     
 	<atom:link href="https://ssquan.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Presto Insert Mysql</title>
+      <link>https://ssquan.github.io/post/presto-insert-mysql/</link>
+      <pubDate>Wed, 16 Sep 2020 20:15:20 +0800</pubDate>
+      
+      <guid>https://ssquan.github.io/post/presto-insert-mysql/</guid>
+      <description>故事是这样开始的 一个咖啡劲儿已经消退了的午后，业务大大突然抛了一个非常令人吃惊的问题，说: Presto insert Mysql 特别慢，跑了几十分钟了，一直 13% 左右， 你赶紧帮忙看看。第一反应就是 嗯？大问题了？，有一点兴奋，也有一点冒汗。
+一顿操作猛如虎 紧接着，大概进行了如下几个猛如虎的操作：
+ Presto 监控看起来，嗯～有一个 Stage 很慢，但是又没有死，大概几十 K Row/s 的速度在蠕动； Mysql 监控看起来，哦？CPU 低很，内存不大，磁盘占用率和 IO 都不高，网络更别说，不忙； Presto 进程在搞啥这么慢？Jstack 一下，stack 就是在 write 的地方； Mysql 的信息稍微捞一捞。  果然不出所料，没那么 easy 就看到原因，再来一杯咖啡提提神吧。
+来自大自然的猜想 在经过上面的操作之后，基本确定的是两个系统都没有发生什么异常，他们在正常的工作，只是慢。正常操作，资源不紧张，看起来不是瓶颈，深度怀疑是有竞争了。难道是有锁竞争？Show Create Table 还是有一点小小的惊喜，内容是这样的（ 已脱敏）：
+| mock_id_cross_index | CREATE TABLE `mock_id_cross_index` ( `id` bigint(20) DEFAULT NULL, `c1` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL , `c2` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL, `c3` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL, `c4` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL, `c5` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL, `c6` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL, `c7` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL, `c8` bigint(20) DEFAULT NULL, PRIMARY KEY (`c1`), KEY `AK_c1` (`c2`) USING BTREE, KEY `AK_c2` (`c3`) USING BTREE, KEY `AK_c3` (`c4`) USING BTREE, KEY `AK_c4` (`c5`) USING BTREE, KEY `AK_c5` (`c6`) USING BTREE 先卖个关子，不说明这里主要的坑。但是满眼的索引有点害怕了。</description>
+    </item>
     
     <item>
       <title>Data Governace</title>

@@ -1,0 +1,16 @@
+---
+title: "Mysql Locks"
+date: 2020-09-14T22:21:22+08:00
+draft: true
+---
+
+|锁类型 | 设计目的| 典型的SQL 场景|
+|:---|:---|:---|:---|
+|表锁 (Table Lock)||||
+|记录锁||
+|表意向锁||
+
+
+# Cluster Index
+
+# Second Index
