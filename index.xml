@@ -12,10 +12,10 @@
     
     <item>
       <title>Presto导出数据到Mysql</title>
-      <link>https://ssquan.github.io/post/Presto-Insert-Mysql/</link>
+      <link>https://ssquan.github.io/post/presto-insert-mysql/</link>
       <pubDate>Wed, 16 Sep 2020 20:15:20 +0800</pubDate>
       
-      <guid>https://ssquan.github.io/post/Presto-Insert-Mysql/</guid>
+      <guid>https://ssquan.github.io/post/presto-insert-mysql/</guid>
       <description>故事的开始 一个咖啡劲儿已经消退了的午后，业务大大突然笑眯眯的对我说: &amp;ldquo;Presto insert Mysql 特别慢，跑了几十分钟了，一直 13% 左右， 你，帮忙看看？&amp;quot;。第一反应就是: &amp;ldquo;嗯？难道出大问题了？&amp;quot;，老实讲，有一点点小兴奋。
 一顿操作猛如虎 紧接着，大概进行了如下几个猛如虎的操作：
  Presto 监控看起来，嗯～有一个 Stage 很慢，但是又没有死，大概十几K Row/s 的速度在爬行； Mysql 监控看起来，哦？CPU 低很，内存不大，磁盘占用率和 IO 都不高，网络更别说了，不忙； Presto 进程在搞啥这么慢？Jstack 一下，stack 就是在 write 的地方，没毛病； Mysql 的信息再稍微捞一捞。  果然不出所料，并没那么 easy 就看到原因，再来一杯咖啡提提神吧。

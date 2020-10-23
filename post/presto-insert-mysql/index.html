@@ -81,7 +81,7 @@
             <li>
             
                 <span class="flex">
-                    <a href="/post/Presto-Insert-Mysql/" class="gdoc-nav__entry is-active">
+                    <a href="/post/presto-insert-mysql/" class="gdoc-nav__entry is-active">
                         Presto导出数据到Mysql
                     </a>
                 </span>
@@ -188,9 +188,9 @@
 
 
 <p><img src="/presto-insert-mysql/presto-insert-mysql_head.png" alt="head"></p>
-<div class="gdoc-page__anchorwrap"><h2 id="故事的开始">故事的开始<a data-clipboard-text="https://ssquan.github.io/post/Presto-Insert-Mysql/#故事的开始" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 故事的开始" href="#故事的开始"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h2></div>
+<div class="gdoc-page__anchorwrap"><h2 id="故事的开始">故事的开始<a data-clipboard-text="https://ssquan.github.io/post/presto-insert-mysql/#故事的开始" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 故事的开始" href="#故事的开始"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h2></div>
 <p>一个咖啡劲儿已经消退了的午后，业务大大突然笑眯眯的对我说: <strong>&ldquo;Presto insert Mysql 特别慢，跑了几十分钟了，一直 13% 左右， 你，帮忙看看？&quot;</strong>。第一反应就是: &ldquo;嗯？难道出大问题了？&quot;，老实讲，有一点点小兴奋。</p>
-<div class="gdoc-page__anchorwrap"><h2 id="一顿操作猛如虎">一顿操作猛如虎<a data-clipboard-text="https://ssquan.github.io/post/Presto-Insert-Mysql/#一顿操作猛如虎" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 一顿操作猛如虎" href="#一顿操作猛如虎"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h2></div>
+<div class="gdoc-page__anchorwrap"><h2 id="一顿操作猛如虎">一顿操作猛如虎<a data-clipboard-text="https://ssquan.github.io/post/presto-insert-mysql/#一顿操作猛如虎" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 一顿操作猛如虎" href="#一顿操作猛如虎"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h2></div>
 <p>紧接着，大概进行了如下几个猛如虎的操作：</p>
 <ol>
 <li>Presto 监控看起来，嗯～有一个 Stage 很慢，但是又没有死，大概十几K Row/s 的速度在爬行；</li>
@@ -199,7 +199,7 @@
 <li>Mysql 的信息再稍微捞一捞。</li>
 </ol>
 <p>果然不出所料，并没那么 easy 就看到原因，再来一杯咖啡提提神吧。</p>
-<div class="gdoc-page__anchorwrap"><h2 id="来自大自然的猜想">来自大自然的猜想<a data-clipboard-text="https://ssquan.github.io/post/Presto-Insert-Mysql/#来自大自然的猜想" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 来自大自然的猜想" href="#来自大自然的猜想"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h2></div>
+<div class="gdoc-page__anchorwrap"><h2 id="来自大自然的猜想">来自大自然的猜想<a data-clipboard-text="https://ssquan.github.io/post/presto-insert-mysql/#来自大自然的猜想" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 来自大自然的猜想" href="#来自大自然的猜想"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h2></div>
 <p>提神醒脑之后开始整理思路（&amp; YY）。基本确定的是：</p>
 <ol>
 <li>两个系统都没有发生什么异常，他们在<strong>正常</strong>的工作，只是慢；</li>
@@ -223,7 +223,7 @@
   <span class="k">KEY</span> <span class="o">`</span><span class="n">AK_c4</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">c5</span><span class="o">`</span><span class="p">)</span> <span class="k">USING</span> <span class="n">BTREE</span><span class="p">,</span>
   <span class="k">KEY</span> <span class="o">`</span><span class="n">AK_c5</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">c6</span><span class="o">`</span><span class="p">)</span> <span class="k">USING</span> <span class="n">BTREE</span>
 </code></pre></div><p>先卖个关子，不说明这里主要的坑。但是满眼的索引很可疑。</p>
-<div class="gdoc-page__anchorwrap"><h2 id="探一探-innodb-的状态">探一探 InnoDB 的状态<a data-clipboard-text="https://ssquan.github.io/post/Presto-Insert-Mysql/#探一探-innodb-的状态" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 探一探 InnoDB 的状态" href="#探一探-innodb-的状态"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h2></div>
+<div class="gdoc-page__anchorwrap"><h2 id="探一探-innodb-的状态">探一探 InnoDB 的状态<a data-clipboard-text="https://ssquan.github.io/post/presto-insert-mysql/#探一探-innodb-的状态" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 探一探 InnoDB 的状态" href="#探一探-innodb-的状态"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h2></div>
 <p>查看 InnoDB 状态后，居然没有看到想象中的<strong>锁竞争</strong> 。想想我们的数据是预先去重的，所以理论也并不会竞争 <code>Insert Lock</code>。这里稍微贴一下 InnoDB 的事物信息（已裁减无用信息 &amp; 脱敏 &amp; 不看也没关系）：</p>
 <pre><code>------------
 TRANSACTIONS
@@ -251,7 +251,7 @@ INSERT INTO `studydb`.`tmp_presto_509cb3802fc84d6697019cad2c55c982` (`c1`, `c2`,
 </blockquote>
 <p>主键索引的自建绝对是 <strong>Performance killer</strong>，Btree 结构的情况下，据我不多的 DB 知识，Page 里面都是要排序的。</p>
 <p>赶紧验证自己的猜想，<strong>删除 C1 的主键索引，采用自增 Primary Key</strong> 后测试，完美。<strong>世界又恢复了美好</strong>。</p>
-<div class="gdoc-page__anchorwrap"><h2 id="presto-insert-mysql-的流程">Presto Insert Mysql 的流程<a data-clipboard-text="https://ssquan.github.io/post/Presto-Insert-Mysql/#presto-insert-mysql-的流程" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor Presto Insert Mysql 的流程" href="#presto-insert-mysql-的流程"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h2></div>
+<div class="gdoc-page__anchorwrap"><h2 id="presto-insert-mysql-的流程">Presto Insert Mysql 的流程<a data-clipboard-text="https://ssquan.github.io/post/presto-insert-mysql/#presto-insert-mysql-的流程" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor Presto Insert Mysql 的流程" href="#presto-insert-mysql-的流程"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h2></div>
 <p>严格意义上来说，属于创建表的 DDL 有问题，但是 Presto 作为一个框架，兼容性要强。来看看 Presto 是如何写 Mysql 数据的。Presto 通过先将数据写入临时表的方式达到了 Atom 的效果，具体流程如下：</p>
 <pre><code class="language-mermaid" data-lang="mermaid">sequenceDiagram
     participant presto_coordinator
@@ -276,11 +276,11 @@ INSERT INTO `studydb`.`tmp_presto_509cb3802fc84d6697019cad2c55c982` (`c1`, `c2`,
 <li>写放大，整个过程，Mysql 需要至少 2 倍于数据量的空间；</li>
 <li>临时表有些情况会被残留，必现的场景是执行操作过程中 Mysql 发生重启；</li>
 </ol>
-<div class="gdoc-page__anchorwrap"><h3 id="社区贡献">社区贡献<a data-clipboard-text="https://ssquan.github.io/post/Presto-Insert-Mysql/#社区贡献" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 社区贡献" href="#社区贡献"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h3></div>
+<div class="gdoc-page__anchorwrap"><h3 id="社区贡献">社区贡献<a data-clipboard-text="https://ssquan.github.io/post/presto-insert-mysql/#社区贡献" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 社区贡献" href="#社区贡献"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h3></div>
 <p>明白 Presto 的 insert 流程后，基本有了一个思路：<strong>在创建临时表的时候不要索引</strong>，先写了临时表，然后通过 <code>INSERT SELECT</code> 的模式将数据倒腾到目标表。然后去社区一顿忽悠，搞了个 Issues 上去了。</p>
 <p><img src="/presto-insert-mysql/image-20200917152639524.png" alt="image-20200917152639524"></p>
 <p>截图上有一个细节，这个 Issues 是 <strong>22 day ago</strong> 的。Presto 的代码严谨程度应该是 Top 级的，在提交 Pull request 的时候 Reviewer 就敏锐的发现了 <code>CREATE TABLE AS SELECT</code> 在 GTID 模式下不支持，并且这个人马上去补充了一堆 GTID 的测试用例，花了不少时间等这个测试用例。代码和评论也是扣的很细，20 天后才 Merged。具体细节琐碎而丢人，我就不放出来了，有兴趣的可以去看 PR 共勉。</p>
-<div class="gdoc-page__anchorwrap"><h3 id="后记">后记<a data-clipboard-text="https://ssquan.github.io/post/Presto-Insert-Mysql/#后记" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 后记" href="#后记"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h3></div>
+<div class="gdoc-page__anchorwrap"><h3 id="后记">后记<a data-clipboard-text="https://ssquan.github.io/post/presto-insert-mysql/#后记" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 后记" href="#后记"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h3></div>
 <p>本质上来说是表结构设计问题，很遗憾没有第一时间发现，当然发现了也就没有这么长的故事了。</p>
 <p>PR 的改法严格来说并不完美，因为误伤的约束检查会很多，有不少可以在插入临时表的时候就做掉，比如 Primary key 的 Unique 检查。单纯过滤掉 Primary  Key 的做法应该是更好的，只是代码逻辑上会繁杂一点点。</p>
 <p>其实，整个过程并没有如上面的操作般行云流水，研究了不少 Mysql 的锁机制和 <code>SHOW ENGINE INNODB STATUS\G</code>的输出信息，反复准备环境和验证。</p>
