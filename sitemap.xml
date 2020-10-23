@@ -3,17 +3,17 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://ssquan.github.io/</loc>
-    <lastmod>2020-09-16T20:15:20+08:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://ssquan.github.io/post/</loc>
     <lastmod>2020-09-16T20:15:20+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://ssquan.github.io/post/presto-insert-mysql/</loc>
+    <loc>https://ssquan.github.io/post/Presto-Insert-Mysql/</loc>
+    <lastmod>2020-09-16T20:15:20+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ssquan.github.io/</loc>
     <lastmod>2020-09-16T20:15:20+08:00</lastmod>
   </url>
   

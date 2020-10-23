@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Categories on Keep active thinking</title>
+    <title>Categories on Quan&#39;s Blog</title>
     <link>https://ssquan.github.io/categories/</link>
-    <description>Recent content in Categories on Keep active thinking</description>
+    <description>Recent content in Categories on Quan&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>zh-cn</language>
     
 	<atom:link href="https://ssquan.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
     

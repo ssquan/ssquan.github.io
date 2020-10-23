@@ -1,189 +1,201 @@
 <!DOCTYPE html>
-<html lang="zh-cn">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    
-    <title>Data Governace | Keep active thinking</title>
-    <meta name="viewport" content="width=device-width,minimum-scale=1">
-    <meta name="generator" content="Hugo 0.73.0" />
-    
-    
-      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-    
+<html lang="en">
 
-    
-    
-      <link href="/dist/css/app.4fc0b62e4b82c997bb0041217cd6b979.css" rel="stylesheet">
-    
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Data Governace">
 
-    
+<title>Data Governace | Quan&#39;s Blog</title>
 
-    
-      
+<link rel="icon" href="/favicon/favicon-32x32.png" type="image/x-icon">
+<link rel="stylesheet" href="/main.min.css" media="screen">
+<link rel="stylesheet" href="/custom.css" media="screen">
 
-    
+<!--Made with Geekdoc theme https://github.com/xoxys/hugo-geekdoc-->
 
-    
-    
-    <meta property="og:title" content="Data Governace" />
-<meta property="og:description" content="数据治理的建设难点 Meta data 元数据是数据资产的基石，元数据的几层认知：
- Data Catalog Data Lineage  典型的开源系统：Apache Atlas，依赖的核心技术是 存储关系的图数据库 和 支持数据检索的数据库，例如 Hbase
-数据安全 数据安全问题涉及到认证、鉴权、脱敏（Data Mask）等问题。常见的实施位置：
- 查询层，是在查询层进行屏蔽，其灵活性比在存储层屏蔽高。 存储层，如果是特别敏感，任何用户，甚至数据开发不可见的信息可以在存储成就进行脱敏；  脱敏的难点：
- 在大文本内容中进行脱敏，这种模式的粒度比基于字段的粒度要高，例如要在大文本中脱敏掉姓名。   Data Quality 数据质量有大的质量体系，各行业也有具体的标准，质量保证、质量控制体系的建设需要注意的是保留开放性，能方便的进行增强和修改。
-Data Asset 数据知产的关键核心在于能体现数据的价值，数据成本和核算暂时没有看到相关的建设，还处于理论层面。有很多数据资产的产品实际是在体现业务层的元数据，行业内的数据资产个人观点是需要更多时间沉淀。
-数据治理的大数据知识 围绕数据治理的各部分内容，梳理其对数据存储和检索的需求场景。
-Apache Ranger 作为数据安全领域的开源组件，提供基于 &ldquo;Resource-User-Operation&rdquo; 三者的权限定义模式，加上权限 ACL 的方式实现权限控制。特点：
- ACL 采用黑白名单结合的方式进行定义，可以灵活选择是白名单优先还是黑名单优先； 基于 Resource 资源的鉴权可以同步到 Resource 侧进行 Cache，单 Resource 只需要关注自己资源对应的权限，是一种Cache 策略，也会带来Cache 策略的缓存同步问题； Audit 审计功能，提供了类似 Solr，Hdfs 等方式，其主要的模式就是将日志写入到分布式存储 or 本地文件，不会回送给Admit； 根据用户查询权限的方式会有查询性能不高，内部用户场景应该是已经基本适用了。 支持数据脱敏  思考；
- 相比于 Sql Gateway 的单输入点控制模式，其架构复杂，但是可以从原理侧防止开发人员直接访问引擎，数据是否对开发可见是鉴权设计需要考虑的点； 公有云的 AK 模式鉴权，似乎是完全基于 DB 的认证服务模式，会有性能瓶颈么？  Apache Atlas 数据血缘的重要组件，以插件化图数据库和元数据库的TiTan为核心，提供的核心功能：" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://ssquan.github.io/post/data-governace/" />
-<meta property="article:published_time" content="2020-08-13T20:10:15+08:00" />
-<meta property="article:modified_time" content="2020-08-13T20:10:15+08:00" />
-<meta itemprop="name" content="Data Governace">
-<meta itemprop="description" content="数据治理的建设难点 Meta data 元数据是数据资产的基石，元数据的几层认知：
- Data Catalog Data Lineage  典型的开源系统：Apache Atlas，依赖的核心技术是 存储关系的图数据库 和 支持数据检索的数据库，例如 Hbase
-数据安全 数据安全问题涉及到认证、鉴权、脱敏（Data Mask）等问题。常见的实施位置：
- 查询层，是在查询层进行屏蔽，其灵活性比在存储层屏蔽高。 存储层，如果是特别敏感，任何用户，甚至数据开发不可见的信息可以在存储成就进行脱敏；  脱敏的难点：
- 在大文本内容中进行脱敏，这种模式的粒度比基于字段的粒度要高，例如要在大文本中脱敏掉姓名。   Data Quality 数据质量有大的质量体系，各行业也有具体的标准，质量保证、质量控制体系的建设需要注意的是保留开放性，能方便的进行增强和修改。
-Data Asset 数据知产的关键核心在于能体现数据的价值，数据成本和核算暂时没有看到相关的建设，还处于理论层面。有很多数据资产的产品实际是在体现业务层的元数据，行业内的数据资产个人观点是需要更多时间沉淀。
-数据治理的大数据知识 围绕数据治理的各部分内容，梳理其对数据存储和检索的需求场景。
-Apache Ranger 作为数据安全领域的开源组件，提供基于 &ldquo;Resource-User-Operation&rdquo; 三者的权限定义模式，加上权限 ACL 的方式实现权限控制。特点：
- ACL 采用黑白名单结合的方式进行定义，可以灵活选择是白名单优先还是黑名单优先； 基于 Resource 资源的鉴权可以同步到 Resource 侧进行 Cache，单 Resource 只需要关注自己资源对应的权限，是一种Cache 策略，也会带来Cache 策略的缓存同步问题； Audit 审计功能，提供了类似 Solr，Hdfs 等方式，其主要的模式就是将日志写入到分布式存储 or 本地文件，不会回送给Admit； 根据用户查询权限的方式会有查询性能不高，内部用户场景应该是已经基本适用了。 支持数据脱敏  思考；
- 相比于 Sql Gateway 的单输入点控制模式，其架构复杂，但是可以从原理侧防止开发人员直接访问引擎，数据是否对开发可见是鉴权设计需要考虑的点； 公有云的 AK 模式鉴权，似乎是完全基于 DB 的认证服务模式，会有性能瓶颈么？  Apache Atlas 数据血缘的重要组件，以插件化图数据库和元数据库的TiTan为核心，提供的核心功能：">
-<meta itemprop="datePublished" content="2020-08-13T20:10:15&#43;08:00" />
-<meta itemprop="dateModified" content="2020-08-13T20:10:15&#43;08:00" />
-<meta itemprop="wordCount" content="109">
+</head>
 
+<body>
+    <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><symbol viewBox="0 0 24 24" id="arrow_back" xmlns="http://www.w3.org/2000/svg"><path d="M20.016 11.016v1.969H7.828l5.578 5.625L12 20.016 3.984 12 12 3.984l1.406 1.406-5.578 5.625h12.188z"/></symbol><symbol viewBox="0 0 24 24" id="arrow_left_alt" xmlns="http://www.w3.org/2000/svg"><path d="M7.969 11.016v-3L3.985 12l3.984 3.984v-3h12.047v-1.969H7.969z"/></symbol><symbol viewBox="0 0 24 24" id="arrow_right_alt" xmlns="http://www.w3.org/2000/svg"><path d="M16.031 11.016v-3L20.015 12l-3.984 3.984v-3H3.984v-1.969h12.047z"/></symbol><symbol viewBox="0 0 24 24" id="bookmark" xmlns="http://www.w3.org/2000/svg"><path d="M15 5.016q.797 0 1.406.586t.609 1.383v16.031l-7.031-3-6.984 3V6.985q0-.797.609-1.383t1.406-.586h9.984zM18.984 18V5.016q0-.797-.586-1.406t-1.383-.609H6.984q0-.797.609-1.406T8.999.986h9.984q.797 0 1.406.609t.609 1.406v15.984z"/></symbol><symbol viewBox="0 0 16 28" id="code" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 23a1.5 1.5 0 10-3.001.001A1.5 1.5 0 004.5 23zm0-18a1.5 1.5 0 10-3.001.001A1.5 1.5 0 004.5 5zm10 2a1.5 1.5 0 10-3.001.001A1.5 1.5 0 0014.5 7zM16 7a3.002 3.002 0 01-1.5 2.594c-.047 5.641-4.047 6.891-6.703 7.734C5.313 18.109 4.5 18.484 4.5 20v.406A3 3 0 016 23a3.001 3.001 0 01-6 0c0-1.109.609-2.078 1.5-2.594V7.594A3 3 0 010 5a3.001 3.001 0 016 0 3.002 3.002 0 01-1.5 2.594v7.766c.797-.391 1.641-.656 2.406-.891 2.906-.922 4.562-1.609 4.594-4.875A3 3 0 0110 7a3.001 3.001 0 016 0z"/></symbol><symbol viewBox="0 0 24 24" id="date" xmlns="http://www.w3.org/2000/svg"><path d="M18.984 20.016V9H5.015v11.016h13.969zm0-16.032q.797 0 1.406.609t.609 1.406v14.016q0 .797-.609 1.383t-1.406.586H5.015q-.844 0-1.43-.563t-.586-1.406V5.999q0-.797.586-1.406t1.43-.609h.984V2.015h2.016v1.969h7.969V2.015H18v1.969h.984zm-1.968 7.032v1.969H15v-1.969h2.016zm-4.032 0v1.969h-1.969v-1.969h1.969zm-3.984 0v1.969H6.984v-1.969H9z"/></symbol><symbol viewBox="0 0 24 24" id="download" xmlns="http://www.w3.org/2000/svg"><path d="M5.016 18h13.969v2.016H5.016V18zm13.968-9L12 15.984 5.016 9H9V3h6v6h3.984z"/></symbol><symbol viewBox="0 0 24 24" id="email" xmlns="http://www.w3.org/2000/svg"><path d="M20.016 8.016V6L12 11.016 3.984 6v2.016L12 12.985zm0-4.032q.797 0 1.383.609t.586 1.406v12q0 .797-.586 1.406t-1.383.609H3.985q-.797 0-1.383-.609t-.586-1.406v-12q0-.797.586-1.406t1.383-.609h16.031z"/></symbol><symbol viewBox="0 0 24 28" id="github" xmlns="http://www.w3.org/2000/svg"><path d="M12 2c6.625 0 12 5.375 12 12 0 5.297-3.437 9.797-8.203 11.391-.609.109-.828-.266-.828-.578 0-.391.016-1.687.016-3.297 0-1.125-.375-1.844-.812-2.219 2.672-.297 5.484-1.313 5.484-5.922 0-1.313-.469-2.375-1.234-3.219.125-.313.531-1.531-.125-3.187-1-.313-3.297 1.234-3.297 1.234a11.28 11.28 0 00-6 0S6.704 6.656 5.704 6.969c-.656 1.656-.25 2.875-.125 3.187-.766.844-1.234 1.906-1.234 3.219 0 4.594 2.797 5.625 5.469 5.922-.344.313-.656.844-.766 1.609-.688.313-2.438.844-3.484-1-.656-1.141-1.844-1.234-1.844-1.234-1.172-.016-.078.734-.078.734.781.359 1.328 1.75 1.328 1.75.703 2.141 4.047 1.422 4.047 1.422 0 1 .016 1.937.016 2.234 0 .313-.219.688-.828.578C3.439 23.796.002 19.296.002 13.999c0-6.625 5.375-12 12-12zM4.547 19.234c.031-.063-.016-.141-.109-.187-.094-.031-.172-.016-.203.031-.031.063.016.141.109.187.078.047.172.031.203-.031zm.484.532c.063-.047.047-.156-.031-.25-.078-.078-.187-.109-.25-.047-.063.047-.047.156.031.25.078.078.187.109.25.047zm.469.703c.078-.063.078-.187 0-.297-.063-.109-.187-.156-.266-.094-.078.047-.078.172 0 .281s.203.156.266.109zm.656.656c.063-.063.031-.203-.063-.297-.109-.109-.25-.125-.313-.047-.078.063-.047.203.063.297.109.109.25.125.313.047zm.891.391c.031-.094-.063-.203-.203-.25-.125-.031-.266.016-.297.109s.063.203.203.234c.125.047.266 0 .297-.094zm.984.078c0-.109-.125-.187-.266-.172-.141 0-.25.078-.25.172 0 .109.109.187.266.172.141 0 .25-.078.25-.172zm.906-.156c-.016-.094-.141-.156-.281-.141-.141.031-.234.125-.219.234.016.094.141.156.281.125s.234-.125.219-.219z"/></symbol><symbol viewBox="0 0 28 28" id="heart" xmlns="http://www.w3.org/2000/svg"><path d="M14 26c-.25 0-.5-.094-.688-.281l-9.75-9.406c-.125-.109-3.563-3.25-3.563-7C-.001 4.735 2.796 2 7.468 2c2.734 0 5.297 2.156 6.531 3.375C15.233 4.156 17.796 2 20.53 2c4.672 0 7.469 2.734 7.469 7.313 0 3.75-3.437 6.891-3.578 7.031l-9.734 9.375a.972.972 0 01-.688.281z"/></symbol><symbol viewBox="0 0 24 24" id="link" xmlns="http://www.w3.org/2000/svg"><path d="M17.016 6.984q2.063 0 3.516 1.477T21.985 12t-1.453 3.539-3.516 1.477h-4.031v-1.922h4.031q1.266 0 2.18-.914T20.11 12t-.914-2.18-2.18-.914h-4.031V6.984h4.031zm-9 6v-1.969h7.969v1.969H8.016zM3.891 12q0 1.266.914 2.18t2.18.914h4.031v1.922H6.985q-2.063 0-3.516-1.477T2.016 12t1.453-3.539 3.516-1.477h4.031v1.922H6.985q-1.266 0-2.18.914T3.891 12z"/></symbol><symbol viewBox="0 0 24 24" id="menu" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2.016H3V6zm0 6.984v-1.969h18v1.969H3zM3 18v-2.016h18V18H3z"/></symbol><symbol viewBox="0 0 24 24" id="notification" xmlns="http://www.w3.org/2000/svg"><path d="M18 15.984L20.016 18v.984H3.985V18l2.016-2.016v-4.969q0-2.344 1.195-4.078t3.305-2.25v-.703q0-.609.422-1.055t1.078-.445 1.078.445.422 1.055v.703q2.109.516 3.305 2.25t1.195 4.078v4.969zm-6 6q-.844 0-1.43-.563t-.586-1.406h4.031q0 .797-.609 1.383T12 21.984z"/></symbol><symbol viewBox="0 0 24 24" id="path" xmlns="http://www.w3.org/2000/svg"><path d="M21.984 11.016H15v-3h-2.016v7.969H15v-3h6.984v8.016H15v-3h-3.984V8.017H9v3H2.016V3.001H9v3h6v-3h6.984v8.016z"/></symbol><symbol viewBox="0 0 24 24" id="person" xmlns="http://www.w3.org/2000/svg"><path d="M12 14.016q2.531 0 5.273 1.102t2.742 2.883v2.016H3.984v-2.016q0-1.781 2.742-2.883t5.273-1.102zM12 12q-1.641 0-2.813-1.172T8.015 8.015t1.172-2.836T12 3.984t2.813 1.195 1.172 2.836-1.172 2.813T12 12z"/></symbol><symbol viewBox="0 0 24 24" id="search" xmlns="http://www.w3.org/2000/svg"><path d="M9.516 14.016q1.875 0 3.188-1.313t1.313-3.188-1.313-3.188-3.188-1.313-3.188 1.313-1.313 3.188 1.313 3.188 3.188 1.313zm6 0l4.969 4.969-1.5 1.5-4.969-4.969v-.797l-.281-.281q-1.781 1.547-4.219 1.547-2.719 0-4.617-1.875T3.001 9.516t1.898-4.617 4.617-1.898 4.594 1.898 1.875 4.617q0 .984-.469 2.227t-1.078 1.992l.281.281h.797z"/></symbol><symbol viewBox="0 0 20 28" id="shield" xmlns="http://www.w3.org/2000/svg"><path d="M17 15V5h-7v17.766c.797-.422 2.078-1.156 3.328-2.141C15 19.312 17 17.266 17 15zm3-12v12c0 6.578-9.203 10.734-9.594 10.906-.125.063-.266.094-.406.094s-.281-.031-.406-.094C9.203 25.734 0 21.578 0 15V3c0-.547.453-1 1-1h18c.547 0 1 .453 1 1z"/></symbol><symbol viewBox="0 0 32 32" id="tags" xmlns="http://www.w3.org/2000/svg"><path d="M5 5c-1.104 0-2 .887-2 2v8l13.381 13.381c.716.716 1.838.78 2.62.191L5 14.5V5.007 5zm11-1l13.381 13.381c.783.783.787 2.051.008 2.831l-7.177 7.177a2.003 2.003 0 01-2.831-.008L6 14V6c0-1.112.895-2 2-2h8zm-4.5 7a1.5 1.5 0 10-.001-3.001A1.5 1.5 0 0011.5 11z"/></symbol><symbol viewBox="0 0 35 32" id="telescope" xmlns="http://www.w3.org/2000/svg"><path d="M27.464 2.314a.501.501 0 00-.698-.257L14.86 8.339a.499.499 0 00-.233.621l.245.641-6.873 3.769a.5.5 0 00-.222.63l.228.549-7.299 3.488a.5.5 0 00-.246.643l1.498 3.61a.5.5 0 00.629.28l7.625-2.701.228.549a.5.5 0 00.601.289l7.276-2.097.218.569a.497.497 0 00.612.299l13-4a.498.498 0 00.317-.663l-5-12.501zM2.7 21.469l-1.134-2.734 6.823-3.261 1.439 3.47L2.7 21.469zm8.491-1.846l-.238-.574-1.843-4.445-.238-.573 6.336-3.475 2.374 6.134.375.981-6.766 1.952zm8.109-1.238l-.203-.531c-.003-.011-.001-.024-.006-.035l-.618-1.597-2.754-7.206 11.023-5.815 4.592 11.48L19.3 18.385zM28.964.314a.5.5 0 00-.929.371l6 15a.502.502 0 00.651.279.501.501 0 00.279-.65l-6.001-15zM18 21h-3c-1.14 0-2 .86-2 2v1.315l-5.879 6.859a.5.5 0 10.758.651L13.73 25H16v6.5a.5.5 0 001 0V25h2.27l5.85 6.825a.497.497 0 00.705.054.5.5 0 00.054-.705L20 24.315v-1.24C20 21.912 19.122 21 18 21zm1 3h-5v-1c0-.589.411-1 1-1h3c.57 0 1 .462 1 1.075V24z"/></symbol></svg>
 
-
-<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Data Governace"/>
-<meta name="twitter:description" content="数据治理的建设难点 Meta data 元数据是数据资产的基石，元数据的几层认知：
- Data Catalog Data Lineage  典型的开源系统：Apache Atlas，依赖的核心技术是 存储关系的图数据库 和 支持数据检索的数据库，例如 Hbase
-数据安全 数据安全问题涉及到认证、鉴权、脱敏（Data Mask）等问题。常见的实施位置：
- 查询层，是在查询层进行屏蔽，其灵活性比在存储层屏蔽高。 存储层，如果是特别敏感，任何用户，甚至数据开发不可见的信息可以在存储成就进行脱敏；  脱敏的难点：
- 在大文本内容中进行脱敏，这种模式的粒度比基于字段的粒度要高，例如要在大文本中脱敏掉姓名。   Data Quality 数据质量有大的质量体系，各行业也有具体的标准，质量保证、质量控制体系的建设需要注意的是保留开放性，能方便的进行增强和修改。
-Data Asset 数据知产的关键核心在于能体现数据的价值，数据成本和核算暂时没有看到相关的建设，还处于理论层面。有很多数据资产的产品实际是在体现业务层的元数据，行业内的数据资产个人观点是需要更多时间沉淀。
-数据治理的大数据知识 围绕数据治理的各部分内容，梳理其对数据存储和检索的需求场景。
-Apache Ranger 作为数据安全领域的开源组件，提供基于 &ldquo;Resource-User-Operation&rdquo; 三者的权限定义模式，加上权限 ACL 的方式实现权限控制。特点：
- ACL 采用黑白名单结合的方式进行定义，可以灵活选择是白名单优先还是黑名单优先； 基于 Resource 资源的鉴权可以同步到 Resource 侧进行 Cache，单 Resource 只需要关注自己资源对应的权限，是一种Cache 策略，也会带来Cache 策略的缓存同步问题； Audit 审计功能，提供了类似 Solr，Hdfs 等方式，其主要的模式就是将日志写入到分布式存储 or 本地文件，不会回送给Admit； 根据用户查询权限的方式会有查询性能不高，内部用户场景应该是已经基本适用了。 支持数据脱敏  思考；
- 相比于 Sql Gateway 的单输入点控制模式，其架构复杂，但是可以从原理侧防止开发人员直接访问引擎，数据是否对开发可见是鉴权设计需要考虑的点； 公有云的 AK 模式鉴权，似乎是完全基于 DB 的认证服务模式，会有性能瓶颈么？  Apache Atlas 数据血缘的重要组件，以插件化图数据库和元数据库的TiTan为核心，提供的核心功能："/>
-
-	
-  </head>
-
-  <body class="ma0 avenir bg-near-white">
-
-    
-   
-  
-
-  <header>
-    <div class="bg-black">
-      <nav class="pv3 ph3 ph4-ns" role="navigation">
-  <div class="flex-l justify-between items-center center">
-    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
-      
-        Keep active thinking
-      
-    </a>
-    <div class="flex-l items-center">
-      
-
-      
-        <ul class="pl0 mr3">
-          
-          <li class="list f5 f4-ns fw4 dib pr3">
-            <a class="hover-white no-underline white-90" href="/post/" title="Home page">
-              Home
-            </a>
-          </li>
-          
-        </ul>
-      
-      
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    <div class="wrapper">
+        <input type="checkbox" class="hidden" id="menu-control" />
+        <header class="gdoc-header">
+    <div class="container flex align-center justify-between">
+        
+        <label for="menu-control" class="gdoc-nav__control">
+            <svg class="icon menu"><use xlink:href="#menu"></use></svg>
+            <svg class="icon arrow-back"><use xlink:href="#arrow_back"></use></svg>
+        </label>
+        
+        <a class="gdoc-header__link" href="https://ssquan.github.io/">
+            <span class="gdoc-brand flex align-center">
+                <img class="gdoc-brand__img" src="/brand.svg" alt="Quan&#39;s Blog" width=38 height=38>
+                Quan&#39;s Blog
+            </span>
+        </a>
     </div>
-  </div>
+</header>
+
+
+        <main class="container flex flex-even">
+            <aside class="gdoc-nav">
+                <nav>
+    
+    <div class="gdoc-search">
+        <svg class="icon search"><use xlink:href="#search"></use></svg>
+        <input type="text" id="gdoc-search-input" class="gdoc-search__input" placeholder="Search..."
+            aria-label="Search" maxlength="64" />
+        <div class="gdoc-search__spinner spinner hidden"></div>
+        <ul id="gdoc-search-results" class="gdoc-search__list"></ul>
+    </div>
+
+
+
+    <section class="gdoc-nav--main">
+        <h2>Navigation</h2>
+        
+            
+
+    
+
+    <ul class="gdoc-nav__list">
+        
+            
+            
+            <li>
+            
+                <span class="flex">Posts</span>
+            
+
+            
+            
+                
+    
+
+    <ul class="gdoc-nav__list">
+        
+            
+            
+            <li>
+            
+                <span class="flex">
+                    <a href="/post/data-governace/" class="gdoc-nav__entry is-active">
+                        Data Governace
+                    </a>
+                </span>
+            
+
+            
+            
+            </li>
+            
+            
+            
+            <li>
+            
+                <span class="flex">
+                    <a href="/post/Presto-Insert-Mysql/" class="gdoc-nav__entry ">
+                        Presto Insert Mysql
+                    </a>
+                </span>
+            
+
+            
+            
+            </li>
+            
+            
+        
+    </ul>
+
+            
+            </li>
+            
+            
+        
+    </ul>
+
+
+
+
+
+        
+    </section>
+
+    <section class="gdoc-nav--more">
+        
+    </section>
 </nav>
 
-    </div>
-  </header>
+            </aside>
 
+            <div class="gdoc-page">
+                
+    
 
-
-    <main class="pb7" role="main">
-      
-  
-  <article class="flex-l flex-wrap justify-between mw8 center ph3">
-    <header class="mt4 w-100">
-      <aside class="instapaper_ignoref b helvetica tracked">
-          
-        POSTS
-      </aside>
-      
-
-
-
-
-  <div id="sharing" class="mt3">
 
     
-    <a href="https://www.facebook.com/sharer.php?u=https://ssquan.github.io/post/data-governace/" class="facebook no-underline" aria-label="share on Facebook">
-      <svg height="32px"  style="enable-background:new 0 0 67 67;" version="1.1" viewBox="0 0 67 67" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M28.765,50.32h6.744V33.998h4.499l0.596-5.624h-5.095  l0.007-2.816c0-1.466,0.14-2.253,2.244-2.253h2.812V17.68h-4.5c-5.405,0-7.307,2.729-7.307,7.317v3.377h-3.369v5.625h3.369V50.32z   M33,64C16.432,64,3,50.569,3,34S16.432,4,33,4s30,13.431,30,30S49.568,64,33,64z" style="fill-rule:evenodd;clip-rule:evenodd;"/></svg>
 
-    </a>
 
+
+
+
+
+<div class="gdoc-page__header flex flex-wrap justify-between hidden-mobile" itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+    <span>
+        
+            <span class="breadcrumb">
+                <svg class="icon path"><use xlink:href="#path"></use></svg>
+                
+                
     
     
-    <a href="https://twitter.com/share?url=https://ssquan.github.io/post/data-governace/&amp;text=Data%20Governace" class="twitter no-underline" aria-label="share on Twitter">
-      <svg height="32px"  style="enable-background:new 0 0 67 67;" version="1.1" viewBox="0 0 67 67" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M37.167,22.283c-2.619,0.953-4.274,3.411-4.086,6.101  l0.063,1.038l-1.048-0.127c-3.813-0.487-7.145-2.139-9.974-4.915l-1.383-1.377l-0.356,1.017c-0.754,2.267-0.272,4.661,1.299,6.271  c0.838,0.89,0.649,1.017-0.796,0.487c-0.503-0.169-0.943-0.296-0.985-0.233c-0.146,0.149,0.356,2.076,0.754,2.839  c0.545,1.06,1.655,2.097,2.871,2.712l1.027,0.487l-1.215,0.021c-1.173,0-1.215,0.021-1.089,0.467  c0.419,1.377,2.074,2.839,3.918,3.475l1.299,0.444l-1.131,0.678c-1.676,0.976-3.646,1.526-5.616,1.568  C19.775,43.256,19,43.341,19,43.405c0,0.211,2.557,1.397,4.044,1.864c4.463,1.377,9.765,0.783,13.746-1.568  c2.829-1.673,5.657-5,6.978-8.221c0.713-1.716,1.425-4.851,1.425-6.354c0-0.975,0.063-1.102,1.236-2.267  c0.692-0.678,1.341-1.419,1.467-1.631c0.21-0.403,0.188-0.403-0.88-0.043c-1.781,0.636-2.033,0.551-1.152-0.402  c0.649-0.678,1.425-1.907,1.425-2.267c0-0.063-0.314,0.042-0.671,0.233c-0.377,0.212-1.215,0.53-1.844,0.72l-1.131,0.361l-1.027-0.7  c-0.566-0.381-1.361-0.805-1.781-0.932C39.766,21.902,38.131,21.944,37.167,22.283z M33,64C16.432,64,3,50.569,3,34S16.432,4,33,4  s30,13.431,30,30S49.568,64,33,64z" style="fill-rule:evenodd;clip-rule:evenodd;fill:;"/></svg>
-
-    </a>
+        
+        
+        
+    
+    
+        
+        
+        
+    
+    
+        <a href='/'>Quan's Blog</a> / <a href='/post/'>Posts</a> / Data Governace
+    
 
     
-    <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https://ssquan.github.io/post/data-governace/&amp;title=Data%20Governace" class="linkedin no-underline" aria-label="share on LinkedIn">
-      <svg  height="32px"  style="enable-background:new 0 0 65 65;" version="1.1" viewBox="0 0 65 65" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-  <path d="M50.837,48.137V36.425c0-6.275-3.35-9.195-7.816-9.195  c-3.604,0-5.219,1.983-6.119,3.374V27.71h-6.79c0.09,1.917,0,20.427,0,20.427h6.79V36.729c0-0.609,0.044-1.219,0.224-1.655  c0.49-1.22,1.607-2.483,3.482-2.483c2.458,0,3.44,1.873,3.44,4.618v10.929H50.837z M22.959,24.922c2.367,0,3.842-1.57,3.842-3.531  c-0.044-2.003-1.475-3.528-3.797-3.528s-3.841,1.524-3.841,3.528c0,1.961,1.474,3.531,3.753,3.531H22.959z M34,64  C17.432,64,4,50.568,4,34C4,17.431,17.432,4,34,4s30,13.431,30,30C64,50.568,50.568,64,34,64z M26.354,48.137V27.71h-6.789v20.427  H26.354z" style="fill-rule:evenodd;clip-rule:evenodd;fill:;"/>
-</svg>
 
-    </a>
-  </div>
+    
+
+            </span>
+        
+    </span>
+    <span>
+        
+    </span>
+</div>
 
 
-      <h1 class="f1 athelas mt3 mb1">Data Governace</h1>
-      
-      
-      <time class="f6 mv4 dib tracked" datetime="2020-08-13T20:10:15+08:00">August 13, 2020</time>
+    <article class="gdoc-markdown">
+        <h1>Data Governace</h1>
+        
 
-      
-      
-    </header>
-    <div class="nested-copy-line-height lh-copy serif f4 nested-links nested-img mid-gray pr4-l w-two-thirds-l"><h2 id="数据治理的建设难点">数据治理的建设难点</h2>
-<h3 id="meta-data">Meta data</h3>
+
+
+    
+
+
+<div class="gdoc-page__anchorwrap"><h2 id="数据治理的建设难点">数据治理的建设难点<a data-clipboard-text="https://ssquan.github.io/post/data-governace/#数据治理的建设难点" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 数据治理的建设难点" href="#数据治理的建设难点"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h2></div>
+<div class="gdoc-page__anchorwrap"><h3 id="meta-data">Meta data<a data-clipboard-text="https://ssquan.github.io/post/data-governace/#meta-data" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor Meta data" href="#meta-data"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h3></div>
 <p>元数据是数据资产的基石，元数据的几层认知：</p>
 <ol>
 <li>Data Catalog</li>
 <li>Data Lineage</li>
 </ol>
 <p>典型的开源系统：Apache Atlas，依赖的核心技术是 存储关系的图数据库 和 支持数据检索的数据库，例如 Hbase</p>
-<h3 id="数据安全">数据安全</h3>
+<div class="gdoc-page__anchorwrap"><h3 id="数据安全">数据安全<a data-clipboard-text="https://ssquan.github.io/post/data-governace/#数据安全" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 数据安全" href="#数据安全"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h3></div>
 <p>数据安全问题涉及到认证、鉴权、脱敏（Data Mask）等问题。常见的实施位置：</p>
 <ol>
 <li>查询层，是在查询层进行屏蔽，其灵活性比在存储层屏蔽高。</li>
@@ -194,13 +206,13 @@ Apache Ranger 作为数据安全领域的开源组件，提供基于 &ldquo;Reso
 <li>在大文本内容中进行脱敏，这种模式的粒度比基于字段的粒度要高，例如要在大文本中脱敏掉姓名。</li>
 <li></li>
 </ol>
-<h3 id="data-quality">Data Quality</h3>
+<div class="gdoc-page__anchorwrap"><h3 id="data-quality">Data Quality<a data-clipboard-text="https://ssquan.github.io/post/data-governace/#data-quality" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor Data Quality" href="#data-quality"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h3></div>
 <p>数据质量有大的质量体系，各行业也有具体的标准，质量保证、质量控制体系的建设需要注意的是保留开放性，能方便的进行增强和修改。</p>
-<h3 id="data-asset">Data Asset</h3>
+<div class="gdoc-page__anchorwrap"><h3 id="data-asset">Data Asset<a data-clipboard-text="https://ssquan.github.io/post/data-governace/#data-asset" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor Data Asset" href="#data-asset"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h3></div>
 <p>数据知产的关键核心在于能体现数据的价值，数据成本和核算暂时没有看到相关的建设，还处于理论层面。有很多数据资产的产品实际是在体现业务层的元数据，行业内的数据资产个人观点是需要更多时间沉淀。</p>
-<h2 id="数据治理的大数据知识">数据治理的大数据知识</h2>
+<div class="gdoc-page__anchorwrap"><h2 id="数据治理的大数据知识">数据治理的大数据知识<a data-clipboard-text="https://ssquan.github.io/post/data-governace/#数据治理的大数据知识" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 数据治理的大数据知识" href="#数据治理的大数据知识"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h2></div>
 <p>围绕数据治理的各部分内容，梳理其对数据存储和检索的需求场景。</p>
-<h3 id="apache-ranger">Apache Ranger</h3>
+<div class="gdoc-page__anchorwrap"><h3 id="apache-ranger">Apache Ranger<a data-clipboard-text="https://ssquan.github.io/post/data-governace/#apache-ranger" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor Apache Ranger" href="#apache-ranger"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h3></div>
 <p>作为数据安全领域的开源组件，提供基于 &ldquo;Resource-User-Operation&rdquo; 三者的权限定义模式，加上权限 ACL 的方式实现权限控制。特点：</p>
 <ol>
 <li>ACL 采用黑白名单结合的方式进行定义，可以灵活选择是白名单优先还是黑名单优先；</li>
@@ -214,7 +226,7 @@ Apache Ranger 作为数据安全领域的开源组件，提供基于 &ldquo;Reso
 <li>相比于 Sql Gateway 的单输入点控制模式，其架构复杂，但是可以从原理侧防止开发人员直接访问引擎，数据是否对开发可见是鉴权设计需要考虑的点；</li>
 <li>公有云的 AK 模式鉴权，似乎是完全基于 DB 的认证服务模式，会有性能瓶颈么？</li>
 </ol>
-<h3 id="apache-atlas">Apache Atlas</h3>
+<div class="gdoc-page__anchorwrap"><h3 id="apache-atlas">Apache Atlas<a data-clipboard-text="https://ssquan.github.io/post/data-governace/#apache-atlas" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor Apache Atlas" href="#apache-atlas"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h3></div>
 <p>数据血缘的重要组件，以插件化图数据库和元数据库的TiTan为核心，提供的核心功能：</p>
 <ol>
 <li>数据 Tagging，可以给数据打多个标签，用来做数据分类。</li>
@@ -236,31 +248,11 @@ Apache Ranger 作为数据安全领域的开源组件，提供基于 &ldquo;Reso
 <h1 id="数据质量">数据质量</h1>
 <p>机器学习在数据质量里面的应用</p>
 <h1 id="模型机服务模型和代码的服务">模型机服务？模型和代码的服务</h1>
-<ul class="pa0">
-  
-</ul>
-<div class="mt6 instapaper_ignoref">
-      
-      
-      </div>
-    </div>
-
-    <aside class="w-30-l mt6-l">
 
 
+    </article>
 
-
-</aside>
-
-  </article>
-
-    </main>
-    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
-  <div class="flex justify-between">
-  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ssquan.github.io/" >
-    &copy;  Keep active thinking 2020 
-  </a>
-    <div>
+                
 
 
 
@@ -269,20 +261,52 @@ Apache Ranger 作为数据安全领域的开源组件，提供基于 &ldquo;Reso
 
 
 
-
-
-
-
-
-
-</div>
-  </div>
-</footer>
+    
+    
 
     
 
-  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
 
 
-  </body>
+
+
+<div class="gdoc-page__footer flex flex-wrap justify-between">
+    
+    
+</div>
+
+            </div>
+        </main>
+
+        <footer class="gdoc-footer">
+    <div class="container flex flex-wrap">
+        <span class="gdoc-footer__item">
+            Built with <a href="https://gohugo.io/" class="gdoc-footer__link">Hugo</a> and
+            <svg class="icon heart"><use xlink:href="#heart"></use></svg>
+        </span>
+        
+        
+    </div>
+</footer>
+
+    </div>
+
+    
+
+
+
+
+<script defer src="/js/en.search.min.js"></script>
+
+
+
+<script defer src="/js/clipboard.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+        var clipboard = new ClipboardJS('.clip');
+    });
+</script>
+
+
+</body>
 </html>
