@@ -5,10 +5,23 @@
     <link>https://ssquan.github.io/</link>
     <description>Recent content on Quan&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Wed, 16 Sep 2020 20:15:20 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 16 Oct 2020 20:15:20 +0800</lastBuildDate>
     
 	<atom:link href="https://ssquan.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Spark Operator 密钥问题</title>
+      <link>https://ssquan.github.io/post/spark-operator-bad-certificate/</link>
+      <pubDate>Fri, 16 Oct 2020 20:15:20 +0800</pubDate>
+      
+      <guid>https://ssquan.github.io/post/spark-operator-bad-certificate/</guid>
+      <description>这个是一个由问题推动的知识点收集的旅程，记录了问题本身和问题的定位 (Google) 的点滴。在解决问题时，尝试去 Dive Deeper，就会有一些乐趣产生。
+你也许刚好没有接触这块的知识点，对，刚好。没有关系，我尝试输出的是一种定位和解决问题的快乐方法。
+ 背景 你听过 Spark， Maybe 听过 Spark on K8S，但是 Almost not 听过 Spark Operator。Just Remember 这个是个车厂多于轮胎厂的时代，组合创新盛行而有效。Spark Operator 就是 Google Cloud Native 方式在 K8S 上运行 Spark 的组装车。 不多说，上车。
+现象 在升级 Spark Operator 后遇到了 Spark Application 无法解析 HDFS namenode service name，报 &amp;quot;Unknown Host&amp;quot; 的错误。前方说我们 十万火急，需要立刻解决，不解决就影响项目进度了。耳熟？对，我们遇到的问题 4 个 9 以上面的话结尾。First，calm down。
+线索  从表象上看，最直接的问题是在 Spark Driver 中没有 HDFS 的配置文件： hdfs-site.xml； 从 Pod 的信息中可以看到 HDFS 配置 Volume 未挂载； 查看 Spark Operator 的 Log，有一行可疑信息&amp;quot;Bad Certificate&amp;quot; 。  信息 因为 &amp;quot;Bad Certificate&amp;quot; 能给我们的信息可能很关键，但是并不直观，没有直接说明是谁和谁之间通信的证书不对，所以本次定位是采用从 Volume 挂载的地方入手。平常喜欢的方式是 从现象到理论到代码 的方式进行递进。先顺着线索收集了相关的理论信息。</description>
+    </item>
     
     <item>
       <title>Presto导出数据到Mysql</title>

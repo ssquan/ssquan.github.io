@@ -4,15 +4,14 @@
 <head>
     <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Posts">
+<meta name="description" content="Spark Operator 密钥问题">
 
-<title>Posts | Quan&#39;s Blog</title>
+<title>Spark Operator 密钥问题 | Quan&#39;s Blog</title>
 
 <link rel="icon" href="/favicon/favicon-32x32.png" type="image/x-icon">
 <link rel="stylesheet" href="/main.min.css" media="screen">
 <link rel="stylesheet" href="/custom.css" media="screen">
 
-<link rel="alternate" type="application/rss+xml" href="https://ssquan.github.io/post/index.xml" title="Quan's Blog" />
 <!--Made with Geekdoc theme https://github.com/xoxys/hugo-geekdoc-->
 
 </head>
@@ -97,7 +96,7 @@
             <li>
             
                 <span class="flex">
-                    <a href="/post/spark-operator-bad-certificate/" class="gdoc-nav__entry ">
+                    <a href="/post/spark-operator-bad-certificate/" class="gdoc-nav__entry is-active">
                         Spark Operator 密钥问题
                     </a>
                 </span>
@@ -173,7 +172,14 @@
         
     
     
-        <a href='/'>Quan's Blog</a> / Posts
+        
+        
+        
+    
+    
+        <a href='/'>Quan's Blog</a> / <a href='/post/'>Posts</a> / Spark Operator 密钥问题
+    
+
     
 
     
@@ -186,8 +192,9 @@
     </span>
 </div>
 
+
     <article class="gdoc-markdown">
-        <h1>Posts</h1>
+        <h1>Spark Operator 密钥问题</h1>
         
 
 
@@ -195,6 +202,63 @@
     
 
 
+<p><img src="/spark-operator-bad-certificate/image-20200911144826544.png" alt="image-20200911144826544"></p>
+<blockquote>
+<p>这个是一个由问题推动的知识点收集的旅程，记录了问题本身和问题的定位 (Google) 的点滴。在解决问题时，尝试去 Dive Deeper，就会有一些乐趣产生。</p>
+<p>你也许刚好没有接触这块的知识点，对，刚好。没有关系，我尝试输出的是一种定位和解决问题的快乐方法。</p>
+</blockquote>
+<div class="gdoc-page__anchorwrap"><h3 id="背景">背景<a data-clipboard-text="https://ssquan.github.io/post/spark-operator-bad-certificate/#背景" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 背景" href="#背景"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h3></div>
+<p>你听过 Spark， Maybe 听过 Spark on K8S，但是 Almost not 听过 Spark Operator。Just Remember 这个是个车厂多于轮胎厂的时代，组合创新盛行而有效。Spark Operator 就是 Google Cloud Native 方式在 K8S 上运行 Spark 的组装车。 不多说，上车。</p>
+<div class="gdoc-page__anchorwrap"><h3 id="现象">现象<a data-clipboard-text="https://ssquan.github.io/post/spark-operator-bad-certificate/#现象" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 现象" href="#现象"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h3></div>
+<p>在升级 Spark Operator 后遇到了 Spark Application 无法解析 HDFS namenode service name，报 <span style='color:red'>&quot;Unknown Host&quot;</span> 的错误。前方说我们 <strong>十万火急，需要立刻解决，不解决就影响项目进度了</strong>。耳熟？对，我们遇到的问题 4 个 9 以上面的话结尾。First，calm down。</p>
+<div class="gdoc-page__anchorwrap"><h3 id="线索">线索<a data-clipboard-text="https://ssquan.github.io/post/spark-operator-bad-certificate/#线索" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 线索" href="#线索"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h3></div>
+<ol>
+<li>从表象上看，最直接的问题是在 Spark Driver 中没有 HDFS 的配置文件： <code>hdfs-site.xml</code>；</li>
+<li>从 Pod 的信息中可以看到 HDFS 配置 Volume 未挂载；</li>
+<li>查看 Spark Operator 的 Log，有一行可疑信息<span style='color:red'>&quot;Bad Certificate&quot;</span> 。</li>
+</ol>
+<div class="gdoc-page__anchorwrap"><h3 id="信息">信息<a data-clipboard-text="https://ssquan.github.io/post/spark-operator-bad-certificate/#信息" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 信息" href="#信息"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h3></div>
+<p>因为 <span style='color:red'>&quot;Bad Certificate&quot;</span> 能给我们的信息<strong>可能</strong>很关键，但是并不直观，没有直接说明是谁和谁之间通信的证书不对，所以本次定位是采用从 Volume 挂载的地方入手。平常喜欢的方式是 <strong>从现象到理论到代码</strong> 的方式进行递进。先顺着线索收集了相关的理论信息。</p>
+<div class="gdoc-page__anchorwrap"><h4 id="1-mounting-volume">1. Mounting volume<a data-clipboard-text="https://ssquan.github.io/post/spark-operator-bad-certificate/#1-mounting-volume" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 1. Mounting volume" href="#1-mounting-volume"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h4></div>
+<p>Spark Operator 的说明文档中有指出<code>Mounting volume</code> 需要<code>Enable webhook</code>，这个点比较难找。https://github.com/GoogleCloudPlatform/spark-on-k8s-operator/blob/master/docs/user-guide.md#mounting-volumes</p>
+<p>检查了下当前的环境，Webhook 已经 Enable，存在 Spark Operator Controller (CRD) 中。如果不是专业的 K8S 运维，比较难理解 Mutating admission webhook 的含义，<strong>嘿，刚好我不是</strong>，那就继续挖呗。</p>
+<div class="gdoc-page__anchorwrap"><h4 id="2-mutating-admission-webhook">2. Mutating admission webhook<a data-clipboard-text="https://ssquan.github.io/post/spark-operator-bad-certificate/#2-mutating-admission-webhook" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 2. Mutating admission webhook" href="#2-mutating-admission-webhook"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h4></div>
+<p>这个概念属于 K8S 的范畴，这张图说明了 <strong>Mutating Admission Webhook</strong> 插件化应用的位置。</p>
+<p><img src="/spark-operator-bad-certificate/image-20200722195800910.png" alt="image-20200722195800910"></p>
+<p>直观来说：在 <code>Api server</code> 收到 API 请求后，可以在这个 Hook 点进行一些特殊化的改写动作。Spark Operator 就是在这个点挂载 <code>HadoopConfiguration</code>。当 Api Server 访问 Mutating Admission Webhook 时需要采用 Https 方式进行访问，<strong>也就是在此处用到了认证信息</strong>。</p>
+<p>图片来源于这片对 Admission Webhook 的介绍：https://kubernetes.io/blog/2019/03/21/a-guide-to-kubernetes-admission-controllers/, （敲黑板，贴出来原链接的意思就是值得看）。</p>
+<p>在K8S中，Service Account 通常我们只能使用公钥，如果自定义服务之间需要访问，就需要自己生成密钥对、创建 K8s Secret，这个过程在 Spark-web-hook-init 中调用源码里面 hack 目录下的脚本完成。</p>
+<div class="gdoc-page__anchorwrap"><h4 id="3-web-hook-init">3. Web-hook-init<a data-clipboard-text="https://ssquan.github.io/post/spark-operator-bad-certificate/#3-web-hook-init" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 3. Web-hook-init" href="#3-web-hook-init"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h4></div>
+<p>从这个 Job 的 yaml 文件中可以看到，在早期的版本中干的事情是清除密钥和创建密钥。但是遇到了 Update 会清除密钥但不创建新密钥的问题，后面就将这两个功能拆分成两个 yaml。见 issues： <a href="https://github.com/GoogleCloudPlatform/spark-on-k8s-operator/issues/875">https://github.com/GoogleCloudPlatform/spark-on-k8s-operator/issues/875</a></p>
+<p>很可惜，这个问题和我们遇到的问题还不一样，并不能拿来就用，美梦没有得逞。</p>
+<div class="gdoc-page__anchorwrap"><h3 id="猜测">猜测<a data-clipboard-text="https://ssquan.github.io/post/spark-operator-bad-certificate/#猜测" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 猜测" href="#猜测"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h3></div>
+<p>从现象和前面收集的信息来看，最大的可能是 Web-hook-init 产生的密钥并没有更新到 Spark Api Server。很大的可能性是升级是先升级了 Spark-operator 的 API Server，然后重新执行了web-hook-init。<strong>基于原理的猜想，大概不那么玄学了吧，有效驳斥了老程序定位问题的直觉说。</strong></p>
+<div class="gdoc-page__anchorwrap"><h3 id="验证">验证<a data-clipboard-text="https://ssquan.github.io/post/spark-operator-bad-certificate/#验证" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 验证" href="#验证"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h3></div>
+<p>即然是顺序问题，那么我们重启 Spark-operator 服务，功能正常。嗯，对，<strong>还是重启大法好啊</strong>。说的没错，同时咱们是有理有据的<strong>重启</strong>。</p>
+<div class="gdoc-page__anchorwrap"><h3 id="deeper">Deeper<a data-clipboard-text="https://ssquan.github.io/post/spark-operator-bad-certificate/#deeper" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor Deeper" href="#deeper"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h3></div>
+<p>我起初怀疑是我们内部没有采用 Helm 部署导致的问题，翻开 Yaml 却发现并没有关于 Install Order 的控制，Helm 的默认控制顺序和预期的不一样，Deployment 先部署，Secret 后部署。</p>
+<p><a href="https://github.com/helm/helm/blob/release-2.10/pkg/tiller/kind_sorter.go#L61">https://github.com/helm/helm/blob/release-2.10/pkg/tiller/kind_sorter.go#L61</a></p>
+<p><strong>Trust me，Coder 很难信服非标操作但是理论上Ok的这种东西，大概率还是会保持怀疑，It&rsquo;s OK</strong>。</p>
+<div class="gdoc-page__anchorwrap"><h3 id="思考">思考<a data-clipboard-text="https://ssquan.github.io/post/spark-operator-bad-certificate/#思考" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 思考" href="#思考"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h3></div>
+<p><strong>为什么部署的时候没事，反而 update 的时候有事呢？</strong>。这里有关于如果pod 创建时， Secret 还没有创建是如何运作的介绍。</p>
+<p><a href="https://kubernetes.io/docs/concepts/configuration/secret/">https://kubernetes.io/docs/concepts/configuration/secret/</a></p>
+<p><img src="/spark-operator-bad-certificate/image-20200722205134472.png" alt="image-20200722205134472"></p>
+<p>也就是说如果 Secret 的创建在 Pod 的创建之后是没事的。那么更新是如何运作的呢？</p>
+<p><img src="/spark-operator-bad-certificate/image-20200722205422403.png" alt="image-20200722205422403"></p>
+<p>在上面的 Note 中已经说明了 Update 对 Spark Operator 这种将 Secret mount 到 Pod 中的玩法无效。具体的Mount 方式是在 spark-operator-deployment.yaml  中控制的：</p>
+<pre><code>{{ toYaml .Values.imagePullSecrets | trim | indent 8 }}
+      {{- if .Values.enableWebhook }}
+      volumes:
+        - name: webhook-certs
+          secret:
+            secretName: spark-webhook-certs
+      {{- end }}
+</code></pre><p><strong>为什么 helm update 没事，自己update 服务有事呢？</strong></p>
+<p>这个纯粹和我们 Update 的方式相关，操作人员在 Update 前执行了 Delete 操作。理论上 K8S 走的是**Volidate - Diff - Apply **的操作模式，只会更新 Diff 的地方。单纯的 Update 是不会更新 Secret 的。</p>
+<p>所以，包含这么多知识点的一个问题，归根到底却是一个操作问题。又有什么关系呢？又收获就 OK了。</p>
+<div class="gdoc-page__anchorwrap"><h3 id="后记">后记<a data-clipboard-text="https://ssquan.github.io/post/spark-operator-bad-certificate/#后记" class="gdoc-page__anchor gdoc-page__anchor--right clip" aria-label="Anchor 后记" href="#后记"><svg class="icon link"><use xlink:href="#link"></use></svg></a></h3></div>
+<p>我是个经常救火，又立志决不当 Fire man 的人，所以保持借假修真的心态，探究的更加深入，找出知识点和乐趣。</p>
+<p>提前祝各位Coder 中秋快乐。</p>
 
 
     </article>
